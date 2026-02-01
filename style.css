@@ -1,0 +1,17 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.logo {
+  max-height: 80px;
+}
+
+.logo-evento {
+  max-height: 65px;
+}
+
+.card-header {
+  background-color: #0a7c2f;
+  color: #fff;
+  font-weight: bold;
+}

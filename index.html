@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Sorteio de Produtividade – Show Rural Coopavel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1f7a3f">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-light">
+<div class="container py-4">
+
+  <!-- LOGOS -->
+  <div class="d-flex justify-content-center align-items-center gap-4 mb-3">
+    <img src="logo-stine.png" class="logo" alt="Stine">
+    <img src="show_rural_coopavel.png" class="logo-evento" alt="Show Rural Coopavel">
+  </div>
+
+  <h2 class="text-center text-success">Sorteio de Produtividade – Show Rural Coopavel</h2>
+
+  <!-- 🔌 INDICADOR DE CONEXÃO -->
+  <div id="statusConexao" class="text-center mb-2"></div>
+
+  <p class="text-center text-muted mb-4">
+    Preencha os dados, faça sua estimativa e participe do sorteio
+  </p>
+
+  <form id="stineForm">
+
+    <!-- REDES + LGPD -->
+    <div class="card mb-3">
+      <div class="card-header">Redes sociais e consentimento</div>
+      <div class="card-body">
+
+        <p><strong>Já nos segue nas redes sociais?</strong></p>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="segue" value="Sim" required>
+          <label class="form-check-label">Sim</label>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="radio" name="segue" value="Não">
+          <label class="form-check-label">Não</label>
+        </div>
+
+        <p><strong>Você concorda com o uso de seus dados conforme descrito acima?</strong></p>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="lgpd" value="Sim" required>
+          <label class="form-check-label">Sim</label>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="radio" name="lgpd" value="Não">
+          <label class="form-check-label">Não</label>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 text-muted">
+          <img src="instagram.png" style="height:20px" alt="Instagram">
+          <span>@Stinesementes</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DADOS DO PRODUTOR -->
+    <div class="card mb-3">
+      <div class="card-header">Dados do produtor</div>
+      <div class="card-body">
+
+        <input class="form-control mb-2" name="nome" placeholder="Nome completo" required>
+        <input class="form-control mb-2" name="cargo" placeholder="Função / Cargo">
+        <input class="form-control mb-2" name="empresa" placeholder="Empresa / Fazenda">
+        <input class="form-control mb-2" name="telefone" placeholder="Telefone" required>
+        <input class="form-control mb-2" name="email" type="email" placeholder="E-mail" required>
+        <input class="form-control mb-2" name="cidade" placeholder="Cidade onde planta" required>
+
+        <select class="form-select mb-2" name="uf" required>
+          <option value="">Estado (UF)</option>
+          <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+          <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+          <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+          <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+          <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+          <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+          <option>SP</option><option>SE</option><option>TO</option>
+        </select>
+
+        <input class="form-control mb-3" name="area" type="number" min="1"
+               placeholder="Área plantada com soja (ha)" required>
+
+        <p><strong>Você já planta Stine?</strong></p>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="planta_stine" value="Sim" required>
+          <label class="form-check-label">Sim</label>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="radio" name="planta_stine" value="Não">
+          <label class="form-check-label">Não</label>
+        </div>
+
+        <input class="form-control mb-3"
+               name="qual_stine"
+               placeholder="Se sim, qual híbrido ou variedade?">
+
+        <input class="form-control"
+               name="fornecedor_semente"
+               placeholder="De quem você compra sua semente de soja?"
+               required>
+
+      </div>
+    </div>
+
+    <!-- PARÂMETROS TÉCNICOS -->
+    <div class="card mb-3">
+      <div class="card-header">Parâmetros técnicos</div>
+      <div class="card-body">
+        <p><strong>Variedade do evento:</strong> <span id="variedadeText">—</span></p>
+        <p><strong>PMG:</strong> <span id="pmgText">—</span> g</p>
+      </div>
+    </div>
+
+    <!-- CAMPOS OCULTOS (ADMIN) -->
+    <input type="hidden" id="variedade">
+    <input type="hidden" id="pmg">
+
+    <!-- ESTIMATIVA -->
+    <div class="card mb-4">
+      <div class="card-header">Estimativa de produtividade</div>
+      <div class="card-body">
+        <input class="form-control mb-2" name="vagens" type="number" min="1"
+               placeholder="Número de vagens por planta" required>
+
+        <input class="form-control mb-2" name="graos" type="number" min="0.1" step="0.1"
+               placeholder="Número de grãos por vagem" required>
+
+        <input class="form-control" name="produtividade" type="number" min="1" step="0.1"
+               placeholder="Produtividade estimada (sacas/ha)" required>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">
+      Enviar participação
+    </button>
+  </form>
+
+  <!-- BOTÃO ADMIN -->
+  <button class="btn btn-outline-secondary mt-4 w-100" onclick="abrirAdmin()">
+    Área Administrativa
+  </button>
+
+  <!-- 📄 EXPORTAR LOG (CSV) — ADMIN -->
+  <button
+    id="btnExportarLog"
+    class="btn btn-outline-dark mt-2 w-100"
+    style="display:none"
+    onclick="exportarLogCSV()">
+    📄 Exportar log (CSV)
+  </button>
+
+  <!-- 🗑️ LIMPAR LOG (ADMIN) -->
+  <button
+    id="btnLimparLog"
+    class="btn btn-outline-danger mt-2 w-100"
+    style="display:none"
+    onclick="limparLogComSenha()">
+    🗑️ Limpar log (admin)
+  </button>
+
+  <!-- 🔄 BOTÃO SINCRONIZAR AGORA -->
+  <button
+    id="btnSincronizar"
+    class="btn btn-outline-success mt-2 w-100"
+    style="display:none"
+    onclick="sincronizarAgora()">
+    🔄 Sincronizar agora
+  </button>
+
+  <!-- CONTADOR DE PENDÊNCIAS -->
+  <div id="contadorPendentes" class="text-center text-muted mt-2"></div>
+
+</div>
+
+<!-- REGISTRO DO SERVICE WORKER -->
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
+<script src="app.js"></script>
+</body>
+</html>
