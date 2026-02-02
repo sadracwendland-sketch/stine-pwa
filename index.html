@@ -2,43 +2,91 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Sorteio de Produtividade – Show Rural Coopavel</title>
+  <title>Desafio de Produtividade Stine – Show Rural Coopavel 2026</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1f7a3f">
 
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 
 <body class="bg-light">
 <div class="container py-4">
 
   <!-- LOGOS -->
-  <div class="d-flex justify-content-center align-items-center gap-4 mb-3">
+  <div class="d-flex justify-content-center align-items-center gap-4 mb-2">
     <img src="logo-stine.png" class="logo" alt="Stine">
     <img src="show_rural_coopavel.png" class="logo-evento" alt="Show Rural Coopavel">
   </div>
 
+  <!-- 🔌 INDICADOR DE CONEXÃO (TOPO) -->
+  <div class="text-center mb-3">
+    <span id="onlineStatus" class="fw-bold text-success d-none">
+      🟢 Online
+    </span>
+    <span id="offlineStatus" class="fw-bold text-danger d-none">
+      🔴 Offline
+    </span>
+  </div>
+
   <h2 class="text-center text-success">Sorteio de Produtividade – Show Rural Coopavel</h2>
 
-  <!-- 🔌 INDICADOR DE CONEXÃO -->
-  <div id="statusConexao" class="text-center mb-2"></div>
+  <!-- TEXTO INTRODUTÓRIO -->
+  <div class="card mb-3">
+    <div class="card-body text-center">
+      <p class="mb-0">
+        Preencha os dados, faça sua estimativa e participe do sorteio.
+      </p>
+    </div>
+  </div>
 
-  <p class="text-center text-muted mb-4">
-    Preencha os dados, faça sua estimativa e participe do sorteio
-  </p>
+  <!-- Como participar? -->
+  <div class="card mb-3">
+    <div class="card-header fw-bold">Como participar?</div>
+    <div class="card-body">
+      <ul class="mb-0">
+        <li>Observe a planta de soja exposta.</li>
+        <li>Dê seu palpite respondendo três perguntas:</li>
+        <ul>
+          <li>Quantas vagens há na planta?</li>
+          <li>Quantos grãos há na planta?</li>
+          <li>Qual a produtividade estimada (sc/ha)?</li>
+        </ul>
+        <li>Preencha o formulário com seus dados.</li>
+        <li>O participante com o palpite mais preciso será o vencedor.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Regras -->
+  <div class="card mb-4">
+    <div class="card-header fw-bold">Regras do desafio</div>
+    <div class="card-body">
+      <ul class="mb-0">
+        <li>Cada participante pode participar <strong>apenas uma vez</strong>. Em caso de mais de um envio por dia, será considerado <strong>apenas o primeiro palpite do dia</strong>.</li>
+        <li>As respostas devem ser baseadas <strong>exclusivamente na observação da planta exposta</strong>.</li>
+        <li>O vencedor será definido pela <strong>maior pontuação geral</strong>, considerando a proximidade com os valores reais.</li>
+      </ul>
+    </div>
+  </div>
 
   <form id="stineForm">
 
-    <!-- REDES + LGPD -->
+    <!-- REDES SOCIAIS + LGPD -->
     <div class="card mb-3">
       <div class="card-header">Redes sociais e consentimento</div>
       <div class="card-body">
 
-        <p><strong>Já nos segue nas redes sociais?</strong></p>
+        <p><strong>Já nos segue no Instagram?</strong></p>
         <div class="form-check">
           <input class="form-check-input" type="radio" name="segue" value="Sim" required>
           <label class="form-check-label">Sim</label>
@@ -48,19 +96,31 @@
           <label class="form-check-label">Não</label>
         </div>
 
-        <p><strong>Você concorda com o uso de seus dados conforme descrito acima?</strong></p>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="lgpd" value="Sim" required>
-          <label class="form-check-label">Sim</label>
-        </div>
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="radio" name="lgpd" value="Não">
-          <label class="form-check-label">Não</label>
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <img src="instagram.png" style="height:20px" alt="Instagram">
+          <strong>@Stinesementes</strong>
         </div>
 
-        <div class="d-flex align-items-center gap-2 text-muted">
-          <img src="instagram.png" style="height:20px" alt="Instagram">
-          <span>@Stinesementes</span>
+        <div class="border rounded p-3 bg-light">
+          <p style="font-size:0.95rem;">
+            Ao participar do <strong>Desafio Stine</strong>, declaro que estou ciente e de acordo
+            que os dados pessoais informados neste formulário serão coletados e utilizados
+            pela <strong>Stine Sementes</strong> exclusivamente para fins de comunicação,
+            relacionamento, ações de marketing, eventos e contato comercial, em conformidade
+            com a <strong>Lei Geral de Proteção de Dados (Lei nº 13.709/2018 – LGPD)</strong>.
+          </p>
+
+          <p style="font-size:0.95rem;">
+            Os dados não serão comercializados nem compartilhados com terceiros sem autorização,
+            sendo tratados de forma segura e responsável.
+          </p>
+
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" name="lgpd" value="Sim" required>
+            <label class="form-check-label">
+              Li e concordo com o uso dos meus dados conforme descrito acima.
+            </label>
+          </div>
         </div>
 
       </div>
@@ -70,11 +130,25 @@
     <div class="card mb-3">
       <div class="card-header">Dados do produtor</div>
       <div class="card-body">
-
         <input class="form-control mb-2" name="nome" placeholder="Nome completo" required>
         <input class="form-control mb-2" name="cargo" placeholder="Função / Cargo">
         <input class="form-control mb-2" name="empresa" placeholder="Empresa / Fazenda">
-        <input class="form-control mb-2" name="telefone" placeholder="Telefone" required>
+
+        <input
+          class="form-control mb-2"
+          name="telefone"
+          type="tel"
+          placeholder="Telefone (XX) XXXXX-XXXX"
+          pattern="\(\d{2}\)\s\d{5}-\d{4}"
+          maxlength="15"
+          required
+          oninput="this.value = this.value
+            .replace(/\D/g,'')
+            .replace(/^(\d{2})(\d)/,'($1) $2')
+            .replace(/(\d{5})(\d)/,'$1-$2')
+            .replace(/(-\d{4})\d+?$/,'$1')"
+        >
+
         <input class="form-control mb-2" name="email" type="email" placeholder="E-mail" required>
         <input class="form-control mb-2" name="cidade" placeholder="Cidade onde planta" required>
 
@@ -91,26 +165,6 @@
 
         <input class="form-control mb-3" name="area" type="number" min="1"
                placeholder="Área plantada com soja (ha)" required>
-
-        <p><strong>Você já planta Stine?</strong></p>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="planta_stine" value="Sim" required>
-          <label class="form-check-label">Sim</label>
-        </div>
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="radio" name="planta_stine" value="Não">
-          <label class="form-check-label">Não</label>
-        </div>
-
-        <input class="form-control mb-3"
-               name="qual_stine"
-               placeholder="Se sim, qual híbrido ou variedade?">
-
-        <input class="form-control"
-               name="fornecedor_semente"
-               placeholder="De quem você compra sua semente de soja?"
-               required>
-
       </div>
     </div>
 
@@ -119,13 +173,13 @@
       <div class="card-header">Parâmetros técnicos</div>
       <div class="card-body">
         <p><strong>Variedade do evento:</strong> <span id="variedadeText">—</span></p>
-        <p><strong>PMG:</strong> <span id="pmgText">—</span> g</p>
+        <p><strong>População final:</strong> <span id="populacaoFinalText">—</span> mil plantas/ha</p>
       </div>
     </div>
 
-    <!-- CAMPOS OCULTOS (ADMIN) -->
+    <!-- CAMPOS OCULTOS -->
     <input type="hidden" id="variedade">
-    <input type="hidden" id="pmg">
+    <input type="hidden" id="populacao_final">
 
     <!-- ESTIMATIVA -->
     <div class="card mb-4">
@@ -135,7 +189,7 @@
                placeholder="Número de vagens por planta" required>
 
         <input class="form-control mb-2" name="graos" type="number" min="0.1" step="0.1"
-               placeholder="Número de grãos por vagem" required>
+               placeholder="Número total de grãos por planta" required>
 
         <input class="form-control" name="produtividade" type="number" min="1" step="0.1"
                placeholder="Produtividade estimada (sacas/ha)" required>
@@ -147,50 +201,47 @@
     </button>
   </form>
 
-  <!-- BOTÃO ADMIN -->
+  <!-- ADMIN -->
   <button class="btn btn-outline-secondary mt-4 w-100" onclick="abrirAdmin()">
     Área Administrativa
   </button>
 
-  <!-- 📄 EXPORTAR LOG (CSV) — ADMIN -->
-  <button
-    id="btnExportarLog"
-    class="btn btn-outline-dark mt-2 w-100"
-    style="display:none"
-    onclick="exportarLogCSV()">
-    📄 Exportar log (CSV)
-  </button>
+  <!-- 🔄 MÓDULO OFFLINE (FINAL DA PÁGINA) -->
+  <div id="offlineModule" class="card mt-3 d-none">
+    <div class="card-header fw-bold">Sincronização de Cadastros</div>
+    <div class="card-body text-center">
 
-  <!-- 🗑️ LIMPAR LOG (ADMIN) -->
-  <button
-    id="btnLimparLog"
-    class="btn btn-outline-danger mt-2 w-100"
-    style="display:none"
-    onclick="limparLogComSenha()">
-    🗑️ Limpar log (admin)
-  </button>
+      <div class="mb-2">
+        Cadastros pendentes:
+        <strong><span id="offlineCount">0</span></strong>
+      </div>
 
-  <!-- 🔄 BOTÃO SINCRONIZAR AGORA -->
-  <button
-    id="btnSincronizar"
-    class="btn btn-outline-success mt-2 w-100"
-    style="display:none"
-    onclick="sincronizarAgora()">
-    🔄 Sincronizar agora
-  </button>
+      <button class="btn btn-outline-success mb-2 w-100" onclick="sincronizarOffline()">
+        🔄 Sincronizar agora
+      </button>
 
-  <!-- CONTADOR DE PENDÊNCIAS -->
-  <div id="contadorPendentes" class="text-center text-muted mt-2"></div>
+      <button class="btn btn-outline-primary w-100" onclick="baixarOfflineXLSX()">
+        ⬇️ Baixar cadastros offline (XLSX)
+      </button>
+
+    </div>
+  </div>
 
 </div>
 
-<!-- REGISTRO DO SERVICE WORKER -->
+<script src="app.js"></script>
+
+<!-- ✅ REGISTRO DO SERVICE WORKER (serviço offline) -->
 <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js");
-  }
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('service-worker.js')
+      .then(reg => console.log('Service Worker registrado:', reg.scope))
+      .catch(err => console.error('Erro ao registrar Service Worker:', err));
+  });
+}
 </script>
 
-<script src="app.js"></script>
 </body>
 </html>
