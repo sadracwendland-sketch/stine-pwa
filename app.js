@@ -63,20 +63,18 @@ function atualizarStatusConexao() {
 }
 
 // ===============================
-// LOG LOCAL
+// LOG
 // ===============================
 function salvarLog(acao, payload, status) {
   const log = JSON.parse(localStorage.getItem("stine_log") || "[]");
 
   log.push({
-    dataHora: new Date().toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo"
-    }),
+    dataHora: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
     acao,
     status,
-    nome: payload.nome || "",
-    cidade: payload.cidade || "",
-    variedade: payload.variedade_evento || ""
+    nome: payload.Nome || "",
+    cidade: payload.Cidade || "",
+    variedade: payload.Variedade_Evento || ""
   });
 
   localStorage.setItem("stine_log", JSON.stringify(log));
@@ -87,16 +85,16 @@ function salvarLog(acao, payload, status) {
 // ===============================
 function gerarHashRegistro(payload) {
   return btoa(
-    payload.nome +
-    payload.telefone +
-    payload.produtividade_sc_ha +
-    payload.vagens_planta +
-    payload.graos_vagem
+    payload.Nome +
+    payload.Telefone +
+    payload.Produtividade_sc_ha +
+    payload.Vagens_Planta +
+    payload.Graos_Planta
   );
 }
 
 // ===============================
-// ADMINISTRATIVO
+// ADMIN
 // ===============================
 function carregarParametrosAdmin() {
   const dados = JSON.parse(localStorage.getItem(STORAGE_ADMIN) || "{}");
@@ -129,11 +127,7 @@ function abrirAdmin() {
     return;
   }
 
-  const dados = {
-    variedade,
-    populacao_final: populacaoFinal
-  };
-
+  const dados = { variedade, populacao_final: populacaoFinal };
   localStorage.setItem(STORAGE_ADMIN, JSON.stringify(dados));
 
   variedadeInput.value = variedade;
@@ -181,7 +175,7 @@ async function enviarFilaOffline() {
 }
 
 // ===============================
-// LIMPEZA CORRETA DO FORMULÁRIO
+// LIMPEZA
 // ===============================
 function limparFormularioPreservandoAdmin() {
   const variedade = variedadeInput.value;
@@ -197,35 +191,30 @@ function limparFormularioPreservandoAdmin() {
 }
 
 // ===============================
-// SUBMIT
+// SUBMIT (CORRIGIDO)
 // ===============================
-const payload = {
-  DataHora: new Date().toISOString(),
+form.addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-  Nome: form.nome.value,
-  Cargo: form.cargo ? form.cargo.value : "",
-  Empresa_Fazenda: form.empresa ? form.empresa.value : "",
-
-  Telefone: form.telefone.value,
-  Email: form.email.value,
-  Cidade: form.cidade.value,
-  UF: form.uf.value,
-  Area_Soja_ha: form.area.value,
-
-  Segue_Redes: form.segue ? form.segue.value : "",
-  Aceite_LGPD: form.lgpd && form.lgpd.checked ? "Sim" : "Não",
-
-  Variedade_Evento: variedadeInput.value,
-  Populacao_Final: populacaoFinalInput.value,
-
-  Vagens_Planta: form.vagens.value,
-  Graos_Planta: form.graos.value,
-  Produtividade_sc_ha: form.produtividade.value,
-
-  Status_Envio: navigator.onLine ? "Online" : "Offline"
-};
-
-console.log(payload);
+  const payload = {
+    DataHora: new Date().toISOString(),
+    Nome: form.nome.value,
+    Cargo: form.cargo ? form.cargo.value : "",
+    Empresa_Fazenda: form.empresa ? form.empresa.value : "",
+    Telefone: form.telefone.value,
+    Email: form.email.value,
+    Cidade: form.cidade.value,
+    UF: form.uf.value,
+    Area_Soja_ha: form.area.value,
+    Segue_Redes: form.segue ? form.segue.value : "",
+    Aceite_LGPD: form.lgpd && form.lgpd.checked ? "Sim" : "Não",
+    Variedade_Evento: variedadeInput.value,
+    Populacao_Final: populacaoFinalInput.value,
+    Vagens_Planta: form.vagens.value,
+    Graos_Planta: form.graos.value,
+    Produtividade_sc_ha: form.produtividade.value,
+    Status_Envio: navigator.onLine ? "Online" : "Offline"
+  };
 
   const hash = gerarHashRegistro(payload);
   const enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
@@ -243,27 +232,21 @@ console.log(payload);
       enviados.push(hash);
       localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
       salvarLog("enviado", payload, "ok");
-
       alert("Participação enviada com sucesso!");
-      limparFormularioPreservandoAdmin();
-
     } else {
       fila.push({ hash, payload });
       setFila(fila);
       salvarLog("salvo_offline", payload, "pendente");
-
       alert("Sem internet. Dados salvos localmente.");
-      limparFormularioPreservandoAdmin();
     }
   } catch {
     fila.push({ hash, payload });
     setFila(fila);
     salvarLog("salvo_offline", payload, "pendente");
-
     alert("Falha no envio. Registro salvo offline.");
-    limparFormularioPreservandoAdmin();
   }
 
+  limparFormularioPreservandoAdmin();
   atualizarStatusConexao();
 });
 
@@ -278,9 +261,9 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", atualizarStatusConexao);
 
 // ===============================
-// INICIALIZAÇÃO
+// INIT
 // ===============================
-window.addEventListener("load", () => {
+document.addEventListener("DOMContentLoaded", () => {
   carregarParametrosAdmin();
   enviarFilaOffline();
   atualizarStatusConexao();
