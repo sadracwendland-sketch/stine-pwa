@@ -339,3 +339,51 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", () => {
   atualizarStatusConexao();
 });
+
+// ===============================
+// MÁSCARA TELEFONE (iOS compatível)
+// ===============================
+const telefoneInput = document.getElementById("telefone");
+
+if (telefoneInput) {
+  telefoneInput.addEventListener("input", () => {
+    let v = telefoneInput.value.replace(/\D/g, "").slice(0, 11);
+
+    if (v.length >= 2) v = "(" + v.slice(0, 2) + ") " + v.slice(2);
+    if (v.length >= 10) v = v.slice(0, 10) + "-" + v.slice(10);
+
+    telefoneInput.value = v;
+  });
+}
+// ===============================
+// MÁSCARA TELEFONE (99)99999-9999
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const telefoneInput = document.getElementById("telefone");
+  if (!telefoneInput) return;
+
+  telefoneInput.addEventListener("input", () => {
+    let v = telefoneInput.value.replace(/\D/g, "");
+
+    // limita a 11 números
+    if (v.length > 11) v = v.slice(0, 11);
+
+    // aplica máscara
+    if (v.length > 6) {
+      telefoneInput.value = `(${v.slice(0,2)})${v.slice(2,7)}-${v.slice(7)}`;
+    } else if (v.length > 2) {
+      telefoneInput.value = `(${v.slice(0,2)})${v.slice(2)}`;
+    } else if (v.length > 0) {
+      telefoneInput.value = `(${v}`;
+    } else {
+      telefoneInput.value = "";
+    }
+  });
+
+  telefoneInput.addEventListener("keypress", (e) => {
+    if (!/[0-9]/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+});
+
