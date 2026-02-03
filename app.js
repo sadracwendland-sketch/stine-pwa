@@ -3,7 +3,9 @@
 // ===============================
 const AUTOMATE_URL =
   "https://defaultc18e5a39b8224257bd2a34c15bd7b4.77.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8d7d7c22d76e4bab80ccb6c69ec213bd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=CiMry-yaLyxnARZq1XlAZMDSjeJ7zE9szZ0tjbW-3zw";
+
 const ADMIN_PASSWORD = "stine2026";
+
 const STORAGE_QUEUE = "stine_fila_offline";
 const STORAGE_ADMIN = "stine_parametros_admin";
 const STORAGE_ENVIADOS = "stine_enviados";
@@ -12,8 +14,10 @@ const STORAGE_ENVIADOS = "stine_enviados";
 // ELEMENTOS
 // ===============================
 const form = document.getElementById("stineForm");
+
 const variedadeInput = document.getElementById("variedade");
 const populacaoFinalInput = document.getElementById("populacao_final");
+
 const variedadeText = document.getElementById("variedadeText");
 const populacaoFinalText = document.getElementById("populacaoFinalText");
 
@@ -23,47 +27,42 @@ const populacaoFinalText = document.getElementById("populacaoFinalText");
 function getFila() {
   return JSON.parse(localStorage.getItem(STORAGE_QUEUE) || "[]");
 }
+
 function setFila(fila) {
   localStorage.setItem(STORAGE_QUEUE, JSON.stringify(fila));
 }
 
 // ===============================
-// STATUS ONLINE / OFFLINE + TESTE REAL
+// STATUS ONLINE / OFFLINE
 // ===============================
-async function isReallyOnline() {
-  try {
-    const response = await fetch('https://www.google.com/generate_204', {
-      method: 'HEAD',
-      cache: 'no-store',
-      mode: 'no-cors'
-    });
-    return true; // Se chegar aqui sem erro, assume online
-  } catch {
-    return false;
-  }
-}
-
-async function atualizarStatusConexao() {
-  const online = await isReallyOnline();
+function atualizarStatusConexao() {
+  const online = navigator.onLine;
   const fila = getFila();
-  const offlineEl = document.getElementById("offlineStatus");
-  const onlineEl = document.getElementById("onlineStatus");
-  const contadorEl = document.getElementById("offlineCount");
-  const moduloOffline = document.getElementById("offlineModule");
 
-  if (offlineEl && onlineEl) {
-    offlineEl.classList.toggle("d-none", online);
-    onlineEl.classList.toggle("d-none", !online);
+  const onlineEl = document.getElementById("onlineStatus");
+  const offlineEl = document.getElementById("offlineStatus");
+  const moduloOffline = document.getElementById("offlineModule");
+  const contadorEl = document.getElementById("offlineCount");
+
+  // TOPO ONLINE / OFFLINE
+  if (online) {
+    onlineEl && onlineEl.classList.remove("d-none");
+    offlineEl && offlineEl.classList.add("d-none");
+  } else {
+    onlineEl && onlineEl.classList.add("d-none");
+    offlineEl && offlineEl.classList.remove("d-none");
   }
+
+  // CONTADOR
   if (contadorEl) {
     contadorEl.innerText = fila.length;
   }
-  if (moduloOffline) {
-    if (!online || fila.length > 0) {
-      moduloOffline.classList.remove("d-none");
-    } else {
-      moduloOffline.classList.add("d-none");
-    }
+
+  // BLOCO OFFLINE (final da página)
+  if (!online || fila.length > 0) {
+    moduloOffline && moduloOffline.classList.remove("d-none");
+  } else {
+    moduloOffline && moduloOffline.classList.add("d-none");
   }
 }
 
@@ -72,14 +71,18 @@ async function atualizarStatusConexao() {
 // ===============================
 function salvarLog(acao, payload, status) {
   const log = JSON.parse(localStorage.getItem("stine_log") || "[]");
+
   log.push({
-    dataHora: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+    dataHora: new Date().toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo"
+    }),
     acao,
     status,
     nome: payload.Nome || "",
     cidade: payload.Cidade || "",
     variedade: payload.variedade_evento || ""
   });
+
   localStorage.setItem("stine_log", JSON.stringify(log));
 }
 
@@ -101,10 +104,12 @@ function gerarHashRegistro(payload) {
 // ===============================
 function carregarParametrosAdmin() {
   const dados = JSON.parse(localStorage.getItem(STORAGE_ADMIN) || "{}");
+
   if (dados.variedade) {
     variedadeInput.value = dados.variedade;
     variedadeText.innerText = dados.variedade;
   }
+
   if (dados.populacao_final) {
     populacaoFinalInput.value = dados.populacao_final;
     populacaoFinalText.innerText = dados.populacao_final;
@@ -112,51 +117,39 @@ function carregarParametrosAdmin() {
 }
 
 function abrirAdmin() {
-  const senha = prompt("Digite a senha administrativa:");
-  if (senha !== ADMIN_PASSWORD) {
-    alert("Senha incorreta.");
-    return;
-  }
-  const variedade = prompt("Informe a variedade Stine:");
-  if (!variedade) return;
-  const populacaoFinal = prompt("Informe a população final (mil plantas/ha):");
-  if (!populacaoFinal || isNaN(populacaoFinal)) {
-    alert("População final inválida.");
-    return;
-  }
-  const dados = {
-    variedade,
-    populacao_final: populacaoFinal
-  };
-  localStorage.setItem(STORAGE_ADMIN, JSON.stringify(dados));
-  variedadeInput.value = variedade;
-  populacaoFinalInput.value = populacaoFinal;
-  variedadeText.innerText = variedade;
-  populacaoFinalText.innerText = populacaoFinal;
-  alert("Parâmetros técnicos atualizados.");
+  if (!confirm("Acessar área administrativa?")) return;
+
+  setTimeout(() => {
+    const senha = prompt("Digite a senha administrativa:");
+    if (senha !== ADMIN_PASSWORD) {
+      alert("Senha incorreta.");
+      return;
+    }
+
+    const variedade = prompt("Informe a variedade Stine:");
+    if (!variedade) return;
+
+    const populacaoFinal = prompt("Informe a população final (mil plantas/ha):");
+    if (!populacaoFinal || isNaN(populacaoFinal)) {
+      alert("População final inválida.");
+      return;
+    }
+
+    const dados = { variedade, populacao_final: populacaoFinal };
+    localStorage.setItem(STORAGE_ADMIN, JSON.stringify(dados));
+
+    variedadeInput.value = variedade;
+    populacaoFinalInput.value = populacaoFinal;
+
+    variedadeText.innerText = variedade;
+    populacaoFinalText.innerText = populacaoFinal;
+
+    alert("Parâmetros técnicos atualizados.");
+  }, 100);
 }
+
 window.abrirAdmin = abrirAdmin;
 
-// ===============================
-// PERSISTÊNCIA DE STORAGE (essencial para iOS/Safari)
-// ===============================
-async function requestPersistentStorage() {
-  if (navigator.storage && navigator.storage.persist) {
-    try {
-      const isPersisted = await navigator.storage.persisted();
-      if (!isPersisted) {
-        const granted = await navigator.storage.persist();
-        console.log(granted ? 'Persistência de storage concedida (melhor chance no iOS)' : 'Persistência negada');
-      } else {
-        console.log('Storage já está em modo persistente');
-      }
-    } catch (err) {
-      console.warn('Erro ao solicitar persistência:', err);
-    }
-  } else {
-    console.log('navigator.storage.persist não suportado neste navegador');
-  }
-}
 
 // ===============================
 // ENVIO
@@ -165,21 +158,22 @@ async function enviarPayload(payload) {
   const r = await fetch(AUTOMATE_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    mode: 'cors',  // Adicionado para compatibilidade
     body: JSON.stringify(payload)
   });
-  if (!r.ok) {
-    throw new Error(`Erro HTTP: ${r.status}`);
-  }
-  return r;
+
+  if (!r.ok) throw new Error("Erro HTTP");
 }
 
 async function enviarFilaOffline() {
-  if (!(await isReallyOnline())) return;
+  if (!navigator.onLine) return;
+
   const fila = getFila();
   if (fila.length === 0) return;
 
-  const enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
+  const enviados = JSON.parse(
+    localStorage.getItem(STORAGE_ENVIADOS) || "[]"
+  );
+
   const restante = [];
 
   for (const item of fila) {
@@ -187,9 +181,7 @@ async function enviarFilaOffline() {
       await enviarPayload(item.payload);
       enviados.push(item.hash);
       salvarLog("enviado", item.payload, "ok");
-      console.log(`Enviado com sucesso: ${item.hash}`);
-    } catch (err) {
-      console.error(`Falha ao enviar ${item.hash}:`, err);
+    } catch {
       restante.push(item);
     }
   }
@@ -204,30 +196,15 @@ async function enviarFilaOffline() {
 function limparFormularioPreservandoAdmin() {
   const variedade = variedadeInput.value;
   const populacao = populacaoFinalInput.value;
+
   form.reset();
+
   variedadeInput.value = variedade;
   populacaoFinalInput.value = populacao;
+
   variedadeText.innerText = variedade;
   populacaoFinalText.innerText = populacao;
 }
-
-// ===============================
-// EXPORTAR FILA OFFLINE COMO XLSX (função que faltava)
-// ===============================
-function baixarOfflineXLSX() {
-  const fila = getFila();
-  if (fila.length === 0) {
-    alert("Nenhum cadastro offline para baixar.");
-    return;
-  }
-  const dadosParaExportar = fila.map(item => item.payload);
-  const ws = XLSX.utils.json_to_sheet(dadosParaExportar);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Fila Offline");
-  XLSX.writeFile(wb, "stine_cadastros_offline.xlsx");
-  alert("Arquivo XLSX baixado com sucesso!");
-}
-window.baixarOfflineXLSX = baixarOfflineXLSX;
 
 // ===============================
 // SUBMIT
@@ -237,21 +214,29 @@ form.addEventListener("submit", async function (e) {
 
   const payload = {
     DataHora: new Date().toISOString(),
+
     Segue_Redes: form.segue ? form.segue.value : "",
     Aceite_LGPD: form.lgpd && form.lgpd.checked ? "Sim" : "Não",
+
     Nome: form.nome.value,
     Cargo: form.cargo ? form.cargo.value : "",
     empresa_fazenda: form.empresa ? form.empresa.value : "",
+
     Telefone: form.telefone.value,
     Email: form.email.value,
     Cidade: form.cidade.value,
     UF: form.uf.value,
     Area_Soja_ha: form.area.value,
+
     planta_stine: form.planta_stine ? form.planta_stine.value : "",
     qual_stine: form.qual_stine ? form.qual_stine.value : "",
-    fornecedor_semente: form.fornecedor_semente ? form.fornecedor_semente.value : "",
+    fornecedor_semente: form.fornecedor_semente
+      ? form.fornecedor_semente.value
+      : "",
+
     variedade_evento: variedadeInput.value,
     populacao_final: populacaoFinalInput.value,
+
     vagens_planta: form.vagens.value,
     graos_vagem: form.graos.value,
     produtividade_sc_ha: form.produtividade.value
@@ -268,7 +253,7 @@ form.addEventListener("submit", async function (e) {
   const fila = getFila();
 
   try {
-    if (await isReallyOnline()) {
+    if (navigator.onLine) {
       await enviarPayload(payload);
       enviados.push(hash);
       localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
@@ -278,10 +263,9 @@ form.addEventListener("submit", async function (e) {
       fila.push({ hash, payload });
       setFila(fila);
       salvarLog("salvo_offline", payload, "pendente");
-      alert("Sem internet. Dados salvos localmente para sincronizar depois.");
+      alert("Sem internet. Dados salvos localmente.");
     }
-  } catch (err) {
-    console.error("Falha no envio:", err);
+  } catch {
     fila.push({ hash, payload });
     setFila(fila);
     salvarLog("salvo_offline", payload, "pendente");
@@ -296,41 +280,110 @@ form.addEventListener("submit", async function (e) {
 // BOTÃO: SINCRONIZAR OFFLINE
 // ===============================
 async function sincronizarOffline() {
-  if (!(await isReallyOnline())) {
-    alert("Sem conexão com a internet no momento.");
+  if (!navigator.onLine) {
+    alert("Sem conexão com a internet.");
     return;
   }
+
   const antes = getFila().length;
+
   if (antes === 0) {
     alert("Nenhum cadastro offline para sincronizar.");
     return;
   }
+
+  // envia a fila
   await enviarFilaOffline();
-  await atualizarStatusConexao();
+
+  // ⚠️ ajuste crítico para iOS (força repaint após Promise + localStorage)
+  setTimeout(() => {
+    atualizarStatusConexao();
+  }, 50);
+
   const depois = getFila().length;
+
   if (depois === 0) {
-    alert("Cadastros offline sincronizados com sucesso!");
+    alert("Cadastros offline sincronizados com sucesso.");
   } else {
-    alert(`Sincronização parcial. Ainda há ${depois} pendente(s).`);
+    alert(`Sincronização parcial. ${depois} cadastro(s) ainda pendente(s).`);
   }
 }
+
+// torna a função acessível ao botão HTML
 window.sincronizarOffline = sincronizarOffline;
 
 // ===============================
 // LISTENERS
 // ===============================
-window.addEventListener("online", async () => {
-  await enviarFilaOffline();
-  await atualizarStatusConexao();
+window.addEventListener("online", () => {
+  enviarFilaOffline();
+  atualizarStatusConexao();
 });
+
 window.addEventListener("offline", atualizarStatusConexao);
 
 // ===============================
 // INIT
 // ===============================
-document.addEventListener("DOMContentLoaded", async () => {
-  await requestPersistentStorage();  // Solicita persistência logo no início
+document.addEventListener("DOMContentLoaded", () => {
   carregarParametrosAdmin();
-  await enviarFilaOffline();
-  await atualizarStatusConexao();
+  enviarFilaOffline();
+  atualizarStatusConexao();
 });
+
+window.addEventListener("online", () => {
+  enviarFilaOffline();
+  atualizarStatusConexao();
+});
+
+window.addEventListener("offline", () => {
+  atualizarStatusConexao();
+});
+
+// ===============================
+// MÁSCARA TELEFONE (iOS compatível)
+// ===============================
+const telefoneInput = document.getElementById("telefone");
+
+if (telefoneInput) {
+  telefoneInput.addEventListener("input", () => {
+    let v = telefoneInput.value.replace(/\D/g, "").slice(0, 11);
+
+    if (v.length >= 2) v = "(" + v.slice(0, 2) + ") " + v.slice(2);
+    if (v.length >= 10) v = v.slice(0, 10) + "-" + v.slice(10);
+
+    telefoneInput.value = v;
+  });
+}
+// ===============================
+// MÁSCARA TELEFONE (99)99999-9999
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const telefoneInput = document.getElementById("telefone");
+  if (!telefoneInput) return;
+
+  telefoneInput.addEventListener("input", () => {
+    let v = telefoneInput.value.replace(/\D/g, "");
+
+    // limita a 11 números
+    if (v.length > 11) v = v.slice(0, 11);
+
+    // aplica máscara
+    if (v.length > 6) {
+      telefoneInput.value = `(${v.slice(0,2)})${v.slice(2,7)}-${v.slice(7)}`;
+    } else if (v.length > 2) {
+      telefoneInput.value = `(${v.slice(0,2)})${v.slice(2)}`;
+    } else if (v.length > 0) {
+      telefoneInput.value = `(${v}`;
+    } else {
+      telefoneInput.value = "";
+    }
+  });
+
+  telefoneInput.addEventListener("keypress", (e) => {
+    if (!/[0-9]/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+});
+
