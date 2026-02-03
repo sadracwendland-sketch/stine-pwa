@@ -87,7 +87,7 @@ function salvarLog(acao, payload, status) {
 }
 
 // ===============================
-// HASH (CORRIGIDO)
+// HASH
 // ===============================
 function gerarHashRegistro(payload) {
   return btoa(
@@ -150,9 +150,8 @@ function abrirAdmin() {
 
 window.abrirAdmin = abrirAdmin;
 
-
 // ===============================
-// ENVIO
+// ENVIO (COM DEBUG)
 // ===============================
 async function enviarPayload(payload) {
   const r = await fetch(AUTOMATE_URL, {
@@ -161,11 +160,14 @@ async function enviarPayload(payload) {
     body: JSON.stringify(payload)
   });
 
-  if (!r.ok) throw new Error("Erro HTTP");
+  if (!r.ok) {
+    const texto = await r.text();
+    throw new Error("HTTP " + r.status + ": " + texto);
+  }
 }
 
 // ===============================
-// ENVIO FILA OFFLINE (CORRIGIDO)
+// ENVIO FILA OFFLINE (COM DEBUG)
 // ===============================
 async function enviarFilaOffline() {
   if (!navigator.onLine) return;
@@ -184,17 +186,15 @@ async function enviarFilaOffline() {
       await enviarPayload(item.payload);
       enviados.push(item.hash);
       salvarLog("enviado", item.payload, "ok");
-      console.log("✅ Enviado com sucesso:", item.hash);
+      alert("✅ Enviado: " + item.payload.Nome);
     } catch (erro) {
       restante.push(item);
-      console.log("❌ Erro ao enviar:", erro);
+      alert("❌ ERRO: " + erro.message);
     }
   }
 
   localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
   setFila(restante);
-  
-  console.log("Fila restante:", restante.length);
 }
 
 // ===============================
@@ -318,11 +318,10 @@ async function sincronizarOffline() {
   if (filaAtual.length === 0) {
     alert("Cadastros offline sincronizados com sucesso.");
   } else {
-    alert(`Sincronização parcial. ${filaAtual.length} cadastro(s) ainda pendente(s).`);
+    alert("Sincronização parcial. " + filaAtual.length + " cadastro(s) ainda pendente(s).");
   }
 }
 
-// torna a função acessível ao botão HTML
 window.sincronizarOffline = sincronizarOffline;
 
 // ===============================
@@ -354,10 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
   telefoneInput.addEventListener("input", () => {
     let v = telefoneInput.value.replace(/\D/g, "");
 
-    // limita a 11 números
     if (v.length > 11) v = v.slice(0, 11);
 
-    // aplica máscara
     if (v.length > 6) {
       telefoneInput.value = `(${v.slice(0,2)})${v.slice(2,7)}-${v.slice(7)}`;
     } else if (v.length > 2) {
