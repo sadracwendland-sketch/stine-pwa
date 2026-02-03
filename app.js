@@ -33,7 +33,7 @@ function setFila(fila) {
 }
 
 // ===============================
-// STATUS ONLINE / OFFLINE (AJUSTADO)
+// STATUS ONLINE / OFFLINE
 // ===============================
 function atualizarStatusConexao() {
   const online = navigator.onLine;
@@ -44,18 +44,15 @@ function atualizarStatusConexao() {
   const contadorEl = document.getElementById("offlineCount");
   const moduloOffline = document.getElementById("offlineModule");
 
-  // Indicador no topo
   if (offlineEl && onlineEl) {
     offlineEl.classList.toggle("d-none", online);
     onlineEl.classList.toggle("d-none", !online);
   }
 
-  // Contador
   if (contadorEl) {
     contadorEl.innerText = fila.length;
   }
 
-  // Exibição do módulo final
   if (moduloOffline) {
     if (!online || fila.length > 0) {
       moduloOffline.classList.remove("d-none");
@@ -184,64 +181,51 @@ async function enviarFilaOffline() {
 }
 
 // ===============================
-// BOTÕES OFFLINE
+// LIMPEZA CORRETA DO FORMULÁRIO
 // ===============================
-async function sincronizarOffline() {
-  if (!navigator.onLine) {
-    alert("Sem conexão com a internet.");
-    return;
-  }
+function limparFormularioPreservandoAdmin() {
+  const variedade = variedadeInput.value;
+  const populacao = populacaoFinalInput.value;
 
-  if (getFila().length === 0) {
-    alert("Nenhum cadastro offline para sincronizar.");
-    return;
-  }
+  form.reset();
 
-  await enviarFilaOffline();
-  atualizarStatusConexao();
-  alert("Cadastros offline sincronizados com sucesso.");
+  variedadeInput.value = variedade;
+  populacaoFinalInput.value = populacao;
+
+  variedadeText.innerText = variedade;
+  populacaoFinalText.innerText = populacao;
 }
-
-function baixarOfflineXLSX() {
-  const fila = getFila();
-  if (fila.length === 0) {
-    alert("Nenhum cadastro offline para exportar.");
-    return;
-  }
-
-  const dados = fila.map(item => item.payload);
-
-  const ws = XLSX.utils.json_to_sheet(dados);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Cadastros Offline");
-
-  XLSX.writeFile(wb, "cadastros_offline_stine.xlsx");
-}
-
-window.sincronizarOffline = sincronizarOffline;
-window.baixarOfflineXLSX = baixarOfflineXLSX;
 
 // ===============================
 // SUBMIT
 // ===============================
-form.addEventListener("submit", async function (e) {
-  e.preventDefault();
+const payload = {
+  DataHora: new Date().toISOString(),
 
-  if (!variedadeInput.value || !populacaoFinalInput.value) {
-    alert("Parâmetros técnicos não definidos.");
-    return;
-  }
+  Nome: form.nome.value,
+  Cargo: form.cargo ? form.cargo.value : "",
+  Empresa_Fazenda: form.empresa ? form.empresa.value : "",
 
-  const payload = {
-    nome: form.nome.value,
-    telefone: form.telefone.value,
-    cidade: form.cidade.value,
-    variedade_evento: variedadeInput.value,
-    populacao_final: populacaoFinalInput.value,
-    vagens_planta: form.vagens.value,
-    graos_vagem: form.graos.value,
-    produtividade_sc_ha: form.produtividade.value
-  };
+  Telefone: form.telefone.value,
+  Email: form.email.value,
+  Cidade: form.cidade.value,
+  UF: form.uf.value,
+  Area_Soja_ha: form.area.value,
+
+  Segue_Redes: form.segue ? form.segue.value : "",
+  Aceite_LGPD: form.lgpd && form.lgpd.checked ? "Sim" : "Não",
+
+  Variedade_Evento: variedadeInput.value,
+  Populacao_Final: populacaoFinalInput.value,
+
+  Vagens_Planta: form.vagens.value,
+  Graos_Planta: form.graos.value,
+  Produtividade_sc_ha: form.produtividade.value,
+
+  Status_Envio: navigator.onLine ? "Online" : "Offline"
+};
+
+console.log(payload);
 
   const hash = gerarHashRegistro(payload);
   const enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
@@ -259,25 +243,32 @@ form.addEventListener("submit", async function (e) {
       enviados.push(hash);
       localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
       salvarLog("enviado", payload, "ok");
+
       alert("Participação enviada com sucesso!");
+      limparFormularioPreservandoAdmin();
+
     } else {
       fila.push({ hash, payload });
       setFila(fila);
       salvarLog("salvo_offline", payload, "pendente");
+
       alert("Sem internet. Dados salvos localmente.");
+      limparFormularioPreservandoAdmin();
     }
   } catch {
     fila.push({ hash, payload });
     setFila(fila);
     salvarLog("salvo_offline", payload, "pendente");
+
     alert("Falha no envio. Registro salvo offline.");
+    limparFormularioPreservandoAdmin();
   }
 
   atualizarStatusConexao();
 });
 
 // ===============================
-// LISTENERS DE CONEXÃO
+// LISTENERS
 // ===============================
 window.addEventListener("online", () => {
   enviarFilaOffline();

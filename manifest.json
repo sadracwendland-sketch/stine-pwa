@@ -1,19 +1,20 @@
 {
-  "name": "Sorteio de Produtividade – Stine",
-  "short_name": "Stine Sorteio",
-  "start_url": "./index.html",
+  "name": "Sorteio Show Rural 2026",
+  "short_name": "Stine PWA",
+  "start_url": "/stine-pwa/index.html",
+  "scope": "/stine-pwa/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1f7a3f",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "logo-stine.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo-stine.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
