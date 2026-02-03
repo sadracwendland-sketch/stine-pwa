@@ -151,7 +151,7 @@ function abrirAdmin() {
 window.abrirAdmin = abrirAdmin;
 
 // ===============================
-// ENVIO (COM DEBUG)
+// ENVIO
 // ===============================
 async function enviarPayload(payload) {
   const r = await fetch(AUTOMATE_URL, {
@@ -167,34 +167,39 @@ async function enviarPayload(payload) {
 }
 
 // ===============================
-// ENVIO FILA OFFLINE (COM DEBUG)
+// ENVIO FILA OFFLINE (SEM ALERT)
 // ===============================
 async function enviarFilaOffline() {
-  if (!navigator.onLine) return;
+  if (!navigator.onLine) return { enviados: 0, erros: 0 };
 
   const fila = getFila();
-  if (fila.length === 0) return;
+  if (fila.length === 0) return { enviados: 0, erros: 0 };
 
   const enviados = JSON.parse(
     localStorage.getItem(STORAGE_ENVIADOS) || "[]"
   );
 
   const restante = [];
+  let contadorEnviados = 0;
+  let contadorErros = 0;
 
   for (const item of fila) {
     try {
       await enviarPayload(item.payload);
       enviados.push(item.hash);
       salvarLog("enviado", item.payload, "ok");
-      alert("✅ Enviado: " + item.payload.Nome);
+      contadorEnviados++;
     } catch (erro) {
       restante.push(item);
-      alert("❌ ERRO: " + erro.message);
+      contadorErros++;
+      console.log("Erro ao enviar:", erro);
     }
   }
 
   localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
   setFila(restante);
+
+  return { enviados: contadorEnviados, erros: contadorErros };
 }
 
 // ===============================
@@ -299,26 +304,31 @@ async function sincronizarOffline() {
     return;
   }
 
-  // envia a fila
-  await enviarFilaOffline();
+  // Envia a fila e pega resultado
+  const resultado = await enviarFilaOffline();
 
-  // FORÇA leitura da fila atualizada
+  // FORÇA atualização do contador IMEDIATAMENTE
   const filaAtual = getFila();
-
-  // Atualiza contador DIRETAMENTE
   const contadorEl = document.getElementById("offlineCount");
+  
   if (contadorEl) {
     contadorEl.innerText = filaAtual.length;
+  }
+
+  // Esconde módulo se não tiver pendentes
+  const moduloOffline = document.getElementById("offlineModule");
+  if (filaAtual.length === 0 && moduloOffline) {
+    moduloOffline.classList.add("d-none");
   }
 
   // Atualiza status completo
   atualizarStatusConexao();
 
-  // Mostra resultado
+  // AGORA mostra o alert (depois de atualizar a tela)
   if (filaAtual.length === 0) {
-    alert("Cadastros offline sincronizados com sucesso.");
+    alert("✅ " + resultado.enviados + " cadastro(s) sincronizado(s) com sucesso!");
   } else {
-    alert("Sincronização parcial. " + filaAtual.length + " cadastro(s) ainda pendente(s).");
+    alert("⚠️ Sincronização parcial. " + filaAtual.length + " cadastro(s) ainda pendente(s).");
   }
 }
 
