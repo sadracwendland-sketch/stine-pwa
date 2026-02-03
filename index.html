@@ -229,5 +229,28 @@
   }
 </script>
 
+  <!-- OFFLINE MODULE -->
+  <div id="offlineModule">...</div>
+
+</div> <!-- fecha container -->
+
+<!-- MODAL ADMINISTRATIVO (colar aqui) -->
+<div class="modal fade" id="adminModal">
+  ...
+</div>
+
+<script src="app.js"></script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js");
+    });
+  }
+</script>
+
+</body>
+</html>
+
 </body>
 </html>
