@@ -164,6 +164,9 @@ async function enviarPayload(payload) {
   if (!r.ok) throw new Error("Erro HTTP");
 }
 
+// ===============================
+// ENVIO FILA OFFLINE (CORRIGIDO)
+// ===============================
 async function enviarFilaOffline() {
   if (!navigator.onLine) return;
 
@@ -181,13 +184,17 @@ async function enviarFilaOffline() {
       await enviarPayload(item.payload);
       enviados.push(item.hash);
       salvarLog("enviado", item.payload, "ok");
-    } catch {
+      console.log("✅ Enviado com sucesso:", item.hash);
+    } catch (erro) {
       restante.push(item);
+      console.log("❌ Erro ao enviar:", erro);
     }
   }
 
   localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
   setFila(restante);
+  
+  console.log("Fila restante:", restante.length);
 }
 
 // ===============================
@@ -277,7 +284,7 @@ form.addEventListener("submit", async function (e) {
 });
 
 // ===============================
-// BOTÃO: SINCRONIZAR OFFLINE
+// BOTÃO: SINCRONIZAR OFFLINE (CORRIGIDO)
 // ===============================
 async function sincronizarOffline() {
   if (!navigator.onLine) {
@@ -295,17 +302,23 @@ async function sincronizarOffline() {
   // envia a fila
   await enviarFilaOffline();
 
-  // ⚠️ ajuste crítico para iOS (força repaint após Promise + localStorage)
-  setTimeout(() => {
-    atualizarStatusConexao();
-  }, 50);
+  // FORÇA leitura da fila atualizada
+  const filaAtual = getFila();
 
-  const depois = getFila().length;
+  // Atualiza contador DIRETAMENTE
+  const contadorEl = document.getElementById("offlineCount");
+  if (contadorEl) {
+    contadorEl.innerText = filaAtual.length;
+  }
 
-  if (depois === 0) {
+  // Atualiza status completo
+  atualizarStatusConexao();
+
+  // Mostra resultado
+  if (filaAtual.length === 0) {
     alert("Cadastros offline sincronizados com sucesso.");
   } else {
-    alert(`Sincronização parcial. ${depois} cadastro(s) ainda pendente(s).`);
+    alert(`Sincronização parcial. ${filaAtual.length} cadastro(s) ainda pendente(s).`);
   }
 }
 
@@ -331,30 +344,6 @@ document.addEventListener("DOMContentLoaded", () => {
   atualizarStatusConexao();
 });
 
-window.addEventListener("online", () => {
-  enviarFilaOffline();
-  atualizarStatusConexao();
-});
-
-window.addEventListener("offline", () => {
-  atualizarStatusConexao();
-});
-
-// ===============================
-// MÁSCARA TELEFONE (iOS compatível)
-// ===============================
-const telefoneInput = document.getElementById("telefone");
-
-if (telefoneInput) {
-  telefoneInput.addEventListener("input", () => {
-    let v = telefoneInput.value.replace(/\D/g, "").slice(0, 11);
-
-    if (v.length >= 2) v = "(" + v.slice(0, 2) + ") " + v.slice(2);
-    if (v.length >= 10) v = v.slice(0, 10) + "-" + v.slice(10);
-
-    telefoneInput.value = v;
-  });
-}
 // ===============================
 // MÁSCARA TELEFONE (99)99999-9999
 // ===============================
@@ -386,4 +375,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
