@@ -39,26 +39,30 @@ function atualizarStatusConexao() {
   const online = navigator.onLine;
   const fila = getFila();
 
-  const offlineEl = document.getElementById("offlineStatus");
   const onlineEl = document.getElementById("onlineStatus");
-  const contadorEl = document.getElementById("offlineCount");
+  const offlineEl = document.getElementById("offlineStatus");
   const moduloOffline = document.getElementById("offlineModule");
+  const contadorEl = document.getElementById("offlineCount");
 
-  if (offlineEl && onlineEl) {
-    offlineEl.classList.toggle("d-none", online);
-    onlineEl.classList.toggle("d-none", !online);
+  // TOPO ONLINE / OFFLINE
+  if (online) {
+    onlineEl && onlineEl.classList.remove("d-none");
+    offlineEl && offlineEl.classList.add("d-none");
+  } else {
+    onlineEl && onlineEl.classList.add("d-none");
+    offlineEl && offlineEl.classList.remove("d-none");
   }
 
+  // CONTADOR
   if (contadorEl) {
     contadorEl.innerText = fila.length;
   }
 
-  if (moduloOffline) {
-    if (!online || fila.length > 0) {
-      moduloOffline.classList.remove("d-none");
-    } else {
-      moduloOffline.classList.add("d-none");
-    }
+  // BLOCO OFFLINE (final da página)
+  if (!online || fila.length > 0) {
+    moduloOffline && moduloOffline.classList.remove("d-none");
+  } else {
+    moduloOffline && moduloOffline.classList.add("d-none");
   }
 }
 
@@ -317,5 +321,14 @@ window.addEventListener("offline", atualizarStatusConexao);
 document.addEventListener("DOMContentLoaded", () => {
   carregarParametrosAdmin();
   enviarFilaOffline();
+  atualizarStatusConexao();
+});
+
+window.addEventListener("online", () => {
+  enviarFilaOffline();
+  atualizarStatusConexao();
+});
+
+window.addEventListener("offline", () => {
   atualizarStatusConexao();
 });
