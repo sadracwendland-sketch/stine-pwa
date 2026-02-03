@@ -28,19 +28,17 @@
     <img src="show_rural_coopavel.png" class="logo-evento" alt="Show Rural Coopavel">
   </div>
 
-  <!-- 🔌 INDICADOR DE CONEXÃO (TOPO) -->
+  <!-- STATUS ONLINE / OFFLINE -->
   <div class="text-center mb-3">
-    <span id="onlineStatus" class="fw-bold text-success d-none">
-      🟢 Online
-    </span>
-    <span id="offlineStatus" class="fw-bold text-danger d-none">
-      🔴 Offline
-    </span>
+    <span id="onlineStatus" class="fw-bold text-success d-none">🟢 Online</span>
+    <span id="offlineStatus" class="fw-bold text-danger d-none">🔴 Offline</span>
   </div>
 
-  <h2 class="text-center text-success">Sorteio de Produtividade – Show Rural Coopavel</h2>
+  <h2 class="text-center text-success">
+    Sorteio de Produtividade – Show Rural Coopavel
+  </h2>
 
-  <!-- TEXTO INTRODUTÓRIO -->
+  <!-- INTRO -->
   <div class="card mb-3">
     <div class="card-body text-center">
       <p class="mb-0">
@@ -49,7 +47,7 @@
     </div>
   </div>
 
-  <!-- Como participar? -->
+  <!-- COMO PARTICIPAR -->
   <div class="card mb-3">
     <div class="card-header fw-bold">Como participar?</div>
     <div class="card-body">
@@ -67,14 +65,14 @@
     </div>
   </div>
 
-  <!-- Regras -->
+  <!-- REGRAS -->
   <div class="card mb-4">
     <div class="card-header fw-bold">Regras do desafio</div>
     <div class="card-body">
       <ul class="mb-0">
-        <li>Cada participante pode participar <strong>apenas uma vez</strong>. Em caso de mais de um envio por dia, será considerado <strong>apenas o primeiro palpite do dia</strong>.</li>
-        <li>As respostas devem ser baseadas <strong>exclusivamente na observação da planta exposta</strong>.</li>
-        <li>O vencedor será definido pela <strong>maior pontuação geral</strong>, considerando a proximidade com os valores reais.</li>
+        <li>Cada participante pode participar <strong>apenas uma vez</strong>.</li>
+        <li>Em caso de mais de um envio por dia, será considerado apenas o primeiro.</li>
+        <li>As respostas devem ser baseadas exclusivamente na observação da planta.</li>
       </ul>
     </div>
   </div>
@@ -103,22 +101,14 @@
 
         <div class="border rounded p-3 bg-light">
           <p style="font-size:0.95rem;">
-            Ao participar do <strong>Desafio Stine</strong>, declaro que estou ciente e de acordo
-            que os dados pessoais informados neste formulário serão coletados e utilizados
-            pela <strong>Stine Sementes</strong> exclusivamente para fins de comunicação,
-            relacionamento, ações de marketing, eventos e contato comercial, em conformidade
-            com a <strong>Lei Geral de Proteção de Dados (Lei nº 13.709/2018 – LGPD)</strong>.
-          </p>
-
-          <p style="font-size:0.95rem;">
-            Os dados não serão comercializados nem compartilhados com terceiros sem autorização,
-            sendo tratados de forma segura e responsável.
+            Ao participar do Desafio Stine, declaro que estou ciente e de acordo
+            com o uso dos meus dados conforme a LGPD.
           </p>
 
           <div class="form-check mt-3">
             <input class="form-check-input" type="checkbox" name="lgpd" value="Sim" required>
             <label class="form-check-label">
-              Li e concordo com o uso dos meus dados conforme descrito acima.
+              Li e concordo com o uso dos meus dados.
             </label>
           </div>
         </div>
@@ -130,25 +120,11 @@
     <div class="card mb-3">
       <div class="card-header">Dados do produtor</div>
       <div class="card-body">
+
         <input class="form-control mb-2" name="nome" placeholder="Nome completo" required>
         <input class="form-control mb-2" name="cargo" placeholder="Função / Cargo">
         <input class="form-control mb-2" name="empresa" placeholder="Empresa / Fazenda">
-
-        <input
-          class="form-control mb-2"
-          name="telefone"
-          type="tel"
-          placeholder="Telefone (XX) XXXXX-XXXX"
-          pattern="\(\d{2}\)\s\d{5}-\d{4}"
-          maxlength="15"
-          required
-          oninput="this.value = this.value
-            .replace(/\D/g,'')
-            .replace(/^(\d{2})(\d)/,'($1) $2')
-            .replace(/(\d{5})(\d)/,'$1-$2')
-            .replace(/(-\d{4})\d+?$/,'$1')"
-        >
-
+        <input class="form-control mb-2" name="telefone" placeholder="Telefone" required>
         <input class="form-control mb-2" name="email" type="email" placeholder="E-mail" required>
         <input class="form-control mb-2" name="cidade" placeholder="Cidade onde planta" required>
 
@@ -165,6 +141,27 @@
 
         <input class="form-control mb-3" name="area" type="number" min="1"
                placeholder="Área plantada com soja (ha)" required>
+
+        <p><strong>Você já planta Stine?</strong></p>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="planta_stine" value="Sim" required>
+          <label class="form-check-label">Sim</label>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="radio" name="planta_stine" value="Não">
+          <label class="form-check-label">Não</label>
+        </div>
+
+        <input class="form-control mb-3"
+               name="qual_stine"
+               placeholder="Se sim, qual híbrido ou variedade?">
+
+        <!-- 👇 CAMPO NOVO – FORNECEDOR -->
+        <input class="form-control"
+               name="fornecedor_semente"
+               placeholder="De quem você compra sua semente de soja?"
+               required>
+
       </div>
     </div>
 
@@ -173,7 +170,7 @@
       <div class="card-header">Parâmetros técnicos</div>
       <div class="card-body">
         <p><strong>Variedade do evento:</strong> <span id="variedadeText">—</span></p>
-        <p><strong>População final:</strong> <span id="populacaoFinalText">—</span> mil plantas/ha</p>
+        <p><strong>População final:</strong> <span id="populacaoFinalText">—</span></p>
       </div>
     </div>
 
@@ -185,14 +182,9 @@
     <div class="card mb-4">
       <div class="card-header">Estimativa de produtividade</div>
       <div class="card-body">
-        <input class="form-control mb-2" name="vagens" type="number" min="1"
-               placeholder="Número de vagens por planta" required>
-
-        <input class="form-control mb-2" name="graos" type="number" min="0.1" step="0.1"
-               placeholder="Número total de grãos por planta" required>
-
-        <input class="form-control" name="produtividade" type="number" min="1" step="0.1"
-               placeholder="Produtividade estimada (sacas/ha)" required>
+        <input class="form-control mb-2" name="vagens" type="number" placeholder="Vagens por planta" required>
+        <input class="form-control mb-2" name="graos" type="number" placeholder="Grãos por planta" required>
+        <input class="form-control" name="produtividade" type="number" placeholder="Produtividade estimada (sc/ha)" required>
       </div>
     </div>
 
@@ -202,15 +194,14 @@
   </form>
 
   <!-- ADMIN -->
-  <button class="btn btn-outline-secondary mt-4 w-100" onclick="abrirAdmin()">
+  <button type="button" class="btn btn-outline-secondary mt-4 w-100" onclick="abrirAdmin()">
     Área Administrativa
   </button>
 
-  <!-- 🔄 MÓDULO OFFLINE (FINAL DA PÁGINA) -->
+  <!-- OFFLINE -->
   <div id="offlineModule" class="card mt-3 d-none">
     <div class="card-header fw-bold">Sincronização de Cadastros</div>
     <div class="card-body text-center">
-
       <div class="mb-2">
         Cadastros pendentes:
         <strong><span id="offlineCount">0</span></strong>
@@ -223,7 +214,6 @@
       <button class="btn btn-outline-primary w-100" onclick="baixarOfflineXLSX()">
         ⬇️ Baixar cadastros offline (XLSX)
       </button>
-
     </div>
   </div>
 
@@ -231,18 +221,10 @@
 
 <script src="app.js"></script>
 
-<!-- ✅ REGISTRO DO SERVICE WORKER (serviço offline) -->
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("./service-worker.js")
-        .then(reg => {
-          console.log("Service Worker registrado com sucesso:", reg.scope);
-        })
-        .catch(err => {
-          console.error("Falha ao registrar Service Worker:", err);
-        });
+      navigator.serviceWorker.register("./service-worker.js");
     });
   }
 </script>
