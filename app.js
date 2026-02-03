@@ -36,33 +36,32 @@ function setFila(fila) {
 // STATUS ONLINE / OFFLINE
 // ===============================
 function atualizarStatusConexao() {
-  const online = navigator.onLine;
-  const fila = getFila();
+  var online = navigator.onLine;
+  var fila = getFila();
 
-  const onlineEl = document.getElementById("onlineStatus");
-  const offlineEl = document.getElementById("offlineStatus");
-  const moduloOffline = document.getElementById("offlineModule");
-  const contadorEl = document.getElementById("offlineCount");
+  var onlineEl = document.getElementById("onlineStatus");
+  var offlineEl = document.getElementById("offlineStatus");
+  var moduloOffline = document.getElementById("offlineModule");
+  var contadorEl = document.getElementById("offlineCount");
 
-  // TOPO ONLINE / OFFLINE
   if (online) {
-    onlineEl && onlineEl.classList.remove("d-none");
-    offlineEl && offlineEl.classList.add("d-none");
+    if (onlineEl) onlineEl.classList.remove("d-none");
+    if (offlineEl) offlineEl.classList.add("d-none");
   } else {
-    onlineEl && onlineEl.classList.add("d-none");
-    offlineEl && offlineEl.classList.remove("d-none");
+    if (onlineEl) onlineEl.classList.add("d-none");
+    if (offlineEl) offlineEl.classList.remove("d-none");
   }
 
-  // CONTADOR
   if (contadorEl) {
     contadorEl.innerText = fila.length;
   }
 
-  // BLOCO OFFLINE (final da página)
-  if (!online || fila.length > 0) {
-    moduloOffline && moduloOffline.classList.remove("d-none");
-  } else {
-    moduloOffline && moduloOffline.classList.add("d-none");
+  if (moduloOffline) {
+    if (!online || fila.length > 0) {
+      moduloOffline.classList.remove("d-none");
+    } else {
+      moduloOffline.classList.add("d-none");
+    }
   }
 }
 
@@ -70,14 +69,14 @@ function atualizarStatusConexao() {
 // LOG LOCAL
 // ===============================
 function salvarLog(acao, payload, status) {
-  const log = JSON.parse(localStorage.getItem("stine_log") || "[]");
+  var log = JSON.parse(localStorage.getItem("stine_log") || "[]");
 
   log.push({
     dataHora: new Date().toLocaleString("pt-BR", {
       timeZone: "America/Sao_Paulo"
     }),
-    acao,
-    status,
+    acao: acao,
+    status: status,
     nome: payload.Nome || "",
     cidade: payload.Cidade || "",
     variedade: payload.variedade_evento || ""
@@ -103,7 +102,7 @@ function gerarHashRegistro(payload) {
 // ADMINISTRATIVO
 // ===============================
 function carregarParametrosAdmin() {
-  const dados = JSON.parse(localStorage.getItem(STORAGE_ADMIN) || "{}");
+  var dados = JSON.parse(localStorage.getItem(STORAGE_ADMIN) || "{}");
 
   if (dados.variedade) {
     variedadeInput.value = dados.variedade;
@@ -119,23 +118,23 @@ function carregarParametrosAdmin() {
 function abrirAdmin() {
   if (!confirm("Acessar área administrativa?")) return;
 
-  setTimeout(() => {
-    const senha = prompt("Digite a senha administrativa:");
+  setTimeout(function() {
+    var senha = prompt("Digite a senha administrativa:");
     if (senha !== ADMIN_PASSWORD) {
       alert("Senha incorreta.");
       return;
     }
 
-    const variedade = prompt("Informe a variedade Stine:");
+    var variedade = prompt("Informe a variedade Stine:");
     if (!variedade) return;
 
-    const populacaoFinal = prompt("Informe a população final (mil plantas/ha):");
+    var populacaoFinal = prompt("Informe a população final (mil plantas/ha):");
     if (!populacaoFinal || isNaN(populacaoFinal)) {
       alert("População final inválida.");
       return;
     }
 
-    const dados = { variedade, populacao_final: populacaoFinal };
+    var dados = { variedade: variedade, populacao_final: populacaoFinal };
     localStorage.setItem(STORAGE_ADMIN, JSON.stringify(dados));
 
     variedadeInput.value = variedade;
@@ -154,60 +153,23 @@ window.abrirAdmin = abrirAdmin;
 // ENVIO
 // ===============================
 async function enviarPayload(payload) {
-  const r = await fetch(AUTOMATE_URL, {
+  var r = await fetch(AUTOMATE_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
 
   if (!r.ok) {
-    const texto = await r.text();
-    throw new Error("HTTP " + r.status + ": " + texto);
+    throw new Error("Erro HTTP " + r.status);
   }
-}
-
-// ===============================
-// ENVIO FILA OFFLINE (SEM ALERT)
-// ===============================
-async function enviarFilaOffline() {
-  if (!navigator.onLine) return { enviados: 0, erros: 0 };
-
-  const fila = getFila();
-  if (fila.length === 0) return { enviados: 0, erros: 0 };
-
-  const enviados = JSON.parse(
-    localStorage.getItem(STORAGE_ENVIADOS) || "[]"
-  );
-
-  const restante = [];
-  let contadorEnviados = 0;
-  let contadorErros = 0;
-
-  for (const item of fila) {
-    try {
-      await enviarPayload(item.payload);
-      enviados.push(item.hash);
-      salvarLog("enviado", item.payload, "ok");
-      contadorEnviados++;
-    } catch (erro) {
-      restante.push(item);
-      contadorErros++;
-      console.log("Erro ao enviar:", erro);
-    }
-  }
-
-  localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
-  setFila(restante);
-
-  return { enviados: contadorEnviados, erros: contadorErros };
 }
 
 // ===============================
 // LIMPEZA DO FORMULÁRIO
 // ===============================
 function limparFormularioPreservandoAdmin() {
-  const variedade = variedadeInput.value;
-  const populacao = populacaoFinalInput.value;
+  var variedade = variedadeInput.value;
+  var populacao = populacaoFinalInput.value;
 
   form.reset();
 
@@ -224,7 +186,7 @@ function limparFormularioPreservandoAdmin() {
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const payload = {
+  var payload = {
     DataHora: new Date().toISOString(),
 
     Segue_Redes: form.segue ? form.segue.value : "",
@@ -254,15 +216,15 @@ form.addEventListener("submit", async function (e) {
     produtividade_sc_ha: form.produtividade.value
   };
 
-  const hash = gerarHashRegistro(payload);
-  const enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
+  var hash = gerarHashRegistro(payload);
+  var enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
 
   if (enviados.includes(hash)) {
     alert("Este registro já foi enviado.");
     return;
   }
 
-  const fila = getFila();
+  var fila = getFila();
 
   try {
     if (navigator.onLine) {
@@ -272,13 +234,13 @@ form.addEventListener("submit", async function (e) {
       salvarLog("enviado", payload, "ok");
       alert("Participação enviada com sucesso!");
     } else {
-      fila.push({ hash, payload });
+      fila.push({ hash: hash, payload: payload });
       setFila(fila);
       salvarLog("salvo_offline", payload, "pendente");
       alert("Sem internet. Dados salvos localmente.");
     }
-  } catch {
-    fila.push({ hash, payload });
+  } catch (erro) {
+    fila.push({ hash: hash, payload: payload });
     setFila(fila);
     salvarLog("salvo_offline", payload, "pendente");
     alert("Falha no envio. Registro salvo offline.");
@@ -289,94 +251,156 @@ form.addEventListener("submit", async function (e) {
 });
 
 // ===============================
-// BOTÃO: SINCRONIZAR OFFLINE (CORRIGIDO)
+// BOTÃO: SINCRONIZAR OFFLINE (COM ALERTAS DE DEBUG)
 // ===============================
 async function sincronizarOffline() {
-  if (!navigator.onLine) {
-    alert("Sem conexão com a internet.");
-    return;
-  }
-
-  const antes = getFila().length;
-
-  if (antes === 0) {
-    alert("Nenhum cadastro offline para sincronizar.");
-    return;
-  }
-
-  // Envia a fila e pega resultado
-  const resultado = await enviarFilaOffline();
-
-  // FORÇA atualização do contador IMEDIATAMENTE
-  const filaAtual = getFila();
-  const contadorEl = document.getElementById("offlineCount");
   
-  if (contadorEl) {
-    contadorEl.innerText = filaAtual.length;
-  }
+  // TESTE 1: Confirma que a função foi chamada
+  alert("TESTE: Função sincronizar iniciada!");
 
-  // Esconde módulo se não tiver pendentes
-  const moduloOffline = document.getElementById("offlineModule");
-  if (filaAtual.length === 0 && moduloOffline) {
-    moduloOffline.classList.add("d-none");
-  }
+  try {
+    
+    if (!navigator.onLine) {
+      alert("Sem conexão com a internet.");
+      return;
+    }
 
-  // Atualiza status completo
-  atualizarStatusConexao();
+    var fila = getFila();
+    
+    // TESTE 2: Mostra quantos tem na fila
+    alert("TESTE: Fila tem " + fila.length + " item(s)");
 
-  // AGORA mostra o alert (depois de atualizar a tela)
-  if (filaAtual.length === 0) {
-    alert("✅ " + resultado.enviados + " cadastro(s) sincronizado(s) com sucesso!");
-  } else {
-    alert("⚠️ Sincronização parcial. " + filaAtual.length + " cadastro(s) ainda pendente(s).");
+    if (fila.length === 0) {
+      alert("Nenhum cadastro offline para sincronizar.");
+      return;
+    }
+
+    var enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
+    var restante = [];
+    var qtdEnviados = 0;
+
+    for (var i = 0; i < fila.length; i++) {
+      var item = fila[i];
+      try {
+        await enviarPayload(item.payload);
+        enviados.push(item.hash);
+        salvarLog("enviado", item.payload, "ok");
+        qtdEnviados++;
+        
+        // TESTE 3: Confirma cada envio
+        alert("TESTE: Enviou " + item.payload.Nome);
+        
+      } catch (erroEnvio) {
+        restante.push(item);
+        alert("TESTE: Erro ao enviar - " + erroEnvio.message);
+      }
+    }
+
+    // TESTE 4: Antes de salvar
+    alert("TESTE: Vai salvar. Enviados=" + qtdEnviados + ", Restante=" + restante.length);
+
+    localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
+    setFila(restante);
+
+    var contadorEl = document.getElementById("offlineCount");
+    if (contadorEl) {
+      contadorEl.innerText = restante.length;
+    }
+
+    var moduloOffline = document.getElementById("offlineModule");
+    if (restante.length === 0 && moduloOffline) {
+      moduloOffline.classList.add("d-none");
+    }
+
+    atualizarStatusConexao();
+
+    // RESULTADO FINAL
+    if (restante.length === 0) {
+      alert("SUCESSO! " + qtdEnviados + " cadastro(s) sincronizado(s)!");
+    } else {
+      alert("PARCIAL: " + qtdEnviados + " enviado(s), " + restante.length + " pendente(s).");
+    }
+
+  } catch (erroGeral) {
+    alert("ERRO GERAL: " + erroGeral.message);
   }
 }
 
 window.sincronizarOffline = sincronizarOffline;
 
 // ===============================
+// ENVIO AUTOMÁTICO QUANDO VOLTA ONLINE
+// ===============================
+async function enviarFilaAutomatico() {
+  if (!navigator.onLine) return;
+
+  var fila = getFila();
+  if (fila.length === 0) return;
+
+  var enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
+  var restante = [];
+
+  for (var i = 0; i < fila.length; i++) {
+    var item = fila[i];
+    try {
+      await enviarPayload(item.payload);
+      enviados.push(item.hash);
+      salvarLog("enviado", item.payload, "ok");
+    } catch (erro) {
+      restante.push(item);
+    }
+  }
+
+  localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
+  setFila(restante);
+  atualizarStatusConexao();
+}
+
+// ===============================
 // LISTENERS
 // ===============================
-window.addEventListener("online", () => {
-  enviarFilaOffline();
+window.addEventListener("online", function() {
+  enviarFilaAutomatico();
   atualizarStatusConexao();
 });
 
-window.addEventListener("offline", atualizarStatusConexao);
+window.addEventListener("offline", function() {
+  atualizarStatusConexao();
+});
 
 // ===============================
 // INIT
 // ===============================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
   carregarParametrosAdmin();
-  enviarFilaOffline();
+  enviarFilaAutomatico();
   atualizarStatusConexao();
 });
 
 // ===============================
 // MÁSCARA TELEFONE (99)99999-9999
 // ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  const telefoneInput = document.getElementById("telefone");
+document.addEventListener("DOMContentLoaded", function() {
+  var telefoneInput = document.getElementById("telefone");
   if (!telefoneInput) return;
 
-  telefoneInput.addEventListener("input", () => {
-    let v = telefoneInput.value.replace(/\D/g, "");
+  telefoneInput.addEventListener("input", function() {
+    var v = telefoneInput.value.replace(/\D/g, "");
 
     if (v.length > 11) v = v.slice(0, 11);
 
     if (v.length > 6) {
-      telefoneInput.value = `(${v.slice(0,2)})${v.slice(2,7)}-${v.slice(7)}`;
+      telefoneInput.value = "(" + v.slice(0,2) + ")" + v.slice(2,7) + "-" + v.slice(7);
     } else if (v.length > 2) {
-      telefoneInput.value = `(${v.slice(0,2)})${v.slice(2)}`;
+      telefoneInput.value = "(" + v.slice(0,2) + ")" + v.slice(2);
     } else if (v.length > 0) {
-      telefoneInput.value = `(${v}`;
+      telefoneInput.value = "(" + v;
     } else {
       telefoneInput.value = "";
     }
   });
 
-  telefoneInput.addEventListener("keypress", (e) => {
+  telefoneInput.addEventListener("keypress", function(e) {
     if (!/[0-9]/.test(e.key)) {
       e.preventDefault();
     }
