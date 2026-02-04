@@ -251,85 +251,7 @@ form.addEventListener("submit", async function (e) {
 });
 
 // ===============================
-// BOTÃO: SINCRONIZAR OFFLINE (COM ALERTAS DE DEBUG)
-// ===============================
-async function sincronizarOffline() {
-  
-  // TESTE 1: Confirma que a função foi chamada
-  alert("TESTE: Função sincronizar iniciada!");
-
-  try {
-    
-    if (!navigator.onLine) {
-      alert("Sem conexão com a internet.");
-      return;
-    }
-
-    var fila = getFila();
-    
-    // TESTE 2: Mostra quantos tem na fila
-    alert("TESTE: Fila tem " + fila.length + " item(s)");
-
-    if (fila.length === 0) {
-      alert("Nenhum cadastro offline para sincronizar.");
-      return;
-    }
-
-    var enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
-    var restante = [];
-    var qtdEnviados = 0;
-
-    for (var i = 0; i < fila.length; i++) {
-      var item = fila[i];
-      try {
-        await enviarPayload(item.payload);
-        enviados.push(item.hash);
-        salvarLog("enviado", item.payload, "ok");
-        qtdEnviados++;
-        
-        // TESTE 3: Confirma cada envio
-        alert("TESTE: Enviou " + item.payload.Nome);
-        
-      } catch (erroEnvio) {
-        restante.push(item);
-        alert("TESTE: Erro ao enviar - " + erroEnvio.message);
-      }
-    }
-
-    // TESTE 4: Antes de salvar
-    alert("TESTE: Vai salvar. Enviados=" + qtdEnviados + ", Restante=" + restante.length);
-
-    localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
-    setFila(restante);
-
-    var contadorEl = document.getElementById("offlineCount");
-    if (contadorEl) {
-      contadorEl.innerText = restante.length;
-    }
-
-    var moduloOffline = document.getElementById("offlineModule");
-    if (restante.length === 0 && moduloOffline) {
-      moduloOffline.classList.add("d-none");
-    }
-
-    atualizarStatusConexao();
-
-    // RESULTADO FINAL
-    if (restante.length === 0) {
-      alert("SUCESSO! " + qtdEnviados + " cadastro(s) sincronizado(s)!");
-    } else {
-      alert("PARCIAL: " + qtdEnviados + " enviado(s), " + restante.length + " pendente(s).");
-    }
-
-  } catch (erroGeral) {
-    alert("ERRO GERAL: " + erroGeral.message);
-  }
-}
-
-window.sincronizarOffline = sincronizarOffline;
-
-// ===============================
-// ENVIO AUTOMÁTICO QUANDO VOLTA ONLINE
+// ENVIO AUTOMÁTICO (COM ALERT DE SUCESSO)
 // ===============================
 async function enviarFilaAutomatico() {
   if (!navigator.onLine) return;
@@ -339,6 +261,7 @@ async function enviarFilaAutomatico() {
 
   var enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
   var restante = [];
+  var qtdEnviados = 0;
 
   for (var i = 0; i < fila.length; i++) {
     var item = fila[i];
@@ -346,6 +269,7 @@ async function enviarFilaAutomatico() {
       await enviarPayload(item.payload);
       enviados.push(item.hash);
       salvarLog("enviado", item.payload, "ok");
+      qtdEnviados++;
     } catch (erro) {
       restante.push(item);
     }
@@ -354,7 +278,72 @@ async function enviarFilaAutomatico() {
   localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
   setFila(restante);
   atualizarStatusConexao();
+
+  // ALERT DE SUCESSO
+  if (qtdEnviados > 0) {
+    if (restante.length === 0) {
+      alert("Sincronizado com sucesso! " + qtdEnviados + " cadastro(s) enviado(s).");
+    } else {
+      alert("Sincronização parcial: " + qtdEnviados + " enviado(s), " + restante.length + " pendente(s).");
+    }
+  }
 }
+
+// ===============================
+// BOTÃO: SINCRONIZAR OFFLINE (MANUAL)
+// ===============================
+async function sincronizarOffline() {
+  if (!navigator.onLine) {
+    alert("Sem conexão com a internet.");
+    return;
+  }
+
+  var fila = getFila();
+
+  if (fila.length === 0) {
+    alert("Nenhum cadastro offline para sincronizar.");
+    return;
+  }
+
+  var enviados = JSON.parse(localStorage.getItem(STORAGE_ENVIADOS) || "[]");
+  var restante = [];
+  var qtdEnviados = 0;
+
+  for (var i = 0; i < fila.length; i++) {
+    var item = fila[i];
+    try {
+      await enviarPayload(item.payload);
+      enviados.push(item.hash);
+      salvarLog("enviado", item.payload, "ok");
+      qtdEnviados++;
+    } catch (erroEnvio) {
+      restante.push(item);
+    }
+  }
+
+  localStorage.setItem(STORAGE_ENVIADOS, JSON.stringify(enviados));
+  setFila(restante);
+
+  var contadorEl = document.getElementById("offlineCount");
+  if (contadorEl) {
+    contadorEl.innerText = restante.length;
+  }
+
+  var moduloOffline = document.getElementById("offlineModule");
+  if (restante.length === 0 && moduloOffline) {
+    moduloOffline.classList.add("d-none");
+  }
+
+  atualizarStatusConexao();
+
+  if (restante.length === 0) {
+    alert("Sincronizado com sucesso! " + qtdEnviados + " cadastro(s) enviado(s).");
+  } else {
+    alert("Sincronização parcial: " + qtdEnviados + " enviado(s), " + restante.length + " pendente(s).");
+  }
+}
+
+window.sincronizarOffline = sincronizarOffline;
 
 // ===============================
 // LISTENERS
